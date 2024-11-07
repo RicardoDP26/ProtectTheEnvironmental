@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match the Pairs Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: rgb(72,180,54);
+            background: #FFD700;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            background-color: #53cb41;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .card img {
+            width: 90%;
+            height: 90%;
+            display: none;
+        }
+        .card.flipped img {
+            display: block;
+        }
+        .card .name {
+            position: absolute;
+            bottom: 10px;
+            left: 5px;
+            font-size: 12px;
+            color: black;
+            display: none;
+        }
+        .card.flipped .name {
+            display: block;
+        }
+        .message {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Match the Pairs Game</h1>
+    <p>Click on the cards to find the pairs!</p>
+    <div class="container" id="gameContainer"></div>
+    <div class="message" id="message"></div>
+
+    <script>
+        const items = [
+            { src: "https://tecnopres.com.co/wp-content/uploads/2021/04/500ml-Bala-Petaloide.webp", name: "Plastic Bottle", recyclable: true },
+            { src: "https://img.freepik.com/vector-premium/ilustracion-cascara-platano-simple-diseno-minimalista_773815-1.jpg", name: "Banana Peel", recyclable: false },
+            { src: "https://www.wikihow.com/images/thumb/c/ca/Breaking-Glass-Meaning-Step-8.jpg/v4-460px-Breaking-Glass-Meaning-Step-8.jpg.webp", name: "Broken Glass", recyclable: false },
+            { src: "https://img.freepik.com/vector-premium/periodico-noticias-dibujos-animados-vector-ilustracion-periodico-semanal-o-diario-articulos-esquema-icono-plano_385450-1511.jpg", name: "Newspaper", recyclable: true },
+            { src: "https://img.freepik.com/premium-photo/food-waste-product-with-dustbin-waste-product-recycling-illustration_1026261-1230.jpg?semt=ais_hybrid", name: "Food Waste", recyclable: false },
+            { src: "https://media.istockphoto.com/id/493662940/vector/dead-battery.jpg?s=612x612&w=0&k=20&c=lt7BQFh2gg3iSQZoUSgRXcXduuFaI1kN9eUaoNOgu-I=", name: "Battery", recyclable: false },
+            { src: "https://png.pngtree.com/png-clipart/20230814/original/pngtree-old-paper-scroll-isolated-cartoon-empty-parchment-picture-image_7943186.png", name: "Paper Scroll", recyclable: true },
+            { src: "https://st4.depositphotos.com/5891300/26538/v/450/depositphotos_265386458-stock-illustration-rumpled-metal-can-color-sketch.jpg", name: "Metal Can", recyclable: true }
+        ];
+
+        const gameContainer = document.getElementById('gameContainer');
+        const messageElement = document.getElementById('message');
+        let flippedCards = [];
+        let pairsFound = 0;
+
+        const cardData = [...items, ...items]; // Duplicar los elementos para crear pares
+        const shuffledCards = cardData.sort(() => 0.5 - Math.random()); // Mezclar las cartas
+
+        shuffledCards.forEach((card, index) => {
+            const cardElement = document.createElement('div');
+            cardElement.classList.add('card');
+            cardElement.dataset.index = index;
+
+            const imgElement = document.createElement('img');
+            imgElement.src = card.src;
+
+            const nameElement = document.createElement('div');
+            nameElement.classList.add('name');
+            nameElement.innerText = card.name;
+
+            cardElement.appendChild(imgElement);
+            cardElement.appendChild(nameElement);
+            cardElement.addEventListener('click', () => flipCard(cardElement, card.recyclable));
+            gameContainer.appendChild(cardElement);
+        });
+
+        function flipCard(card, recyclable) {
+            if (flippedCards.length < 2 && !card.classList.contains('flipped')) {
+                card.classList.add('flipped');
+                flippedCards.push({ card, recyclable });
+
+                if (flippedCards.length === 2) {
+                    setTimeout(checkMatch, 1000);
+                }
+            }
+        }
+
+        function checkMatch() {
+            const [firstCardData, secondCardData] = flippedCards;
+            const firstImage = firstCardData.card.querySelector('img').src;
+            const secondImage = secondCardData.card.querySelector('img').src;
+
+            if (firstImage === secondImage) {
+                pairsFound++;
+                const message = firstCardData.recyclable 
+                    ? "You found a pair! It is recyclable!" 
+                    : "You found a pair! It is not recyclable!";
+                messageElement.innerText = message;
+                
+                if (pairsFound === items.length) {
+                    messageElement.innerText = "Congratulations! You matched all pairs!";
+                }
+            } else {
+                firstCardData.card.classList.remove('flipped');
+                secondCardData.card.classList.remove('flipped');
+                messageElement.innerText = "Try again!";
+            }
+            flippedCards = [];
+        }
+    </script>
+</body>
+</html>
